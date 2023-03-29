@@ -239,7 +239,7 @@ int main()
     while (1)
     {
         // Wyświetlenie aktualnych przypomnień
-        showReminder();
+        showReminder(newReminder);
 
         // Wyświetlenie menu
         cout << "Menu:" << endl;
