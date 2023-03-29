@@ -223,12 +223,17 @@ void showReminder(Reminder reminder)
     system("taskkill /f /im wscript.exe /t");
 }
 
-// Główna funkcja programu
 int main()
 {
+    system("@chcp 65001 >nul");
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
+    // Powiększenie czcionki
+    // SetConsoleFontSize(hConsole, 10); // Ustawianie rozmiaru czcionki na 10 (Błąd)
+
+    // Zmiana koloru
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     // Ustawienie kodowania strony na UTF-8
     system("@chcp 65001 >nul");
 
@@ -238,73 +243,30 @@ int main()
     // Pętla programu
     while (1)
     {
+        // Sprawdzanie przypomnień
+        time_t t = time(NULL);
+        tm *timePtr = localtime(&t);
+
+        for (unsigned int i = 0; i < reminders.size(); i++)
+        {
+            // Sprawdzenie czy przypomnienie ma być wyświetlone
+            if (timePtr->tm_mday == reminders[i].day && timePtr->tm_mon + 1 == reminders[i].month && timePtr->tm_year + 1900 == reminders[i].year && timePtr->tm_hour == reminders[i].hour && timePtr->tm_min == reminders[i].minute)
+            {
+                showReminder(reminders[i]);
+            }
+        }
         // Wyświetlenie aktualnych przypomnień
-        showReminder(newReminder);
+        displayReminders();
 
         // Wyświetlenie menu
         cout << "Menu:" << endl;
-        cout << "1. Dodaj przypomnienie" << endl;
-        cout << "2. Usuń przypomnienie" << endl;
-        cout << "3. Edytuj przypomnienie" << endl;
-        cout << "4. Wyjście" << endl;
-
-        int option;
-        cout << "Wybierz opcję: ";
-        cin >> option;
-        cout << endl;
-
-        if (option < 1 || option > 4)
-        {
-            cout << "Nie ma takiej opcji!" << endl;
-        }
-        else
-        {
-            switch (option)
-            {
-            case 1:
-            {
-                // Dodanie przypomnienia
-                addReminder();
-                break;
-            }
-            case 2:
-            {
-                // Usuwanie przypomnienia
-                unsigned int id;
-                cout << "Podaj ID przypomnienia do usunięcia: ";
-                cin >> id;
-
-                if (id > reminders.size() || id < 1)
-                {
-                    cout << "Nie ma takiego przypomnienia!" << endl;
-                }
-                else
-                {
-                    deleteReminder();
-                }
-                break;
-            }
-            case 3:
-            {
-                // Edytowanie przypomnienia
-                unsigned int id;
-                cout << "Podaj ID przypomnienia do edycji: ";
-                cin >> id;
-
-                if (id > reminders.size() || id < 1)
-                {
-                    cout << "Nie ma takiego przypomnienia!" << endl;
-                }
-                else
-                {
-                    editReminder();
-                }
-                break;
-            }
-            case 4:
+@@ -319,12 +305,14 @@ int main()
             {
                 // Wyjście z programu
                 saveReminders();
+                SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+                showReminder(reminders[0]);
+                cout << "Dzięki za współpracę z programem.\nTO NIE JEST KOMPLETNA WERSJA PROGRAMU!" << endl;
                 cout << "Do zobaczenia!" << endl;
                 return 0;
             }
@@ -314,5 +276,6 @@ int main()
         // Wyczyszczenie konsoli przed kolejnym wyświetleniem menu
         system("cls");
     }
+}
     return 0;
 }
