@@ -226,15 +226,11 @@ void showReminder(Reminder reminder)
 // Główna funkcja programu
 int main()
 {
-    system("@chcp 65001 >nul");
     HANDLE hConsole;
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    // Powiększenie czcionki
-    // SetConsoleFontSize(hConsole, 10); // Ustawianie rozmiaru czcionki na 10 (Błąd)
-
-    // Zmiana koloru
-    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+    // Ustawienie kodowania strony na UTF-8
+    system("@chcp 65001 >nul");
 
     // Wczytanie przypomnień z pliku
     loadReminders();
@@ -242,18 +238,8 @@ int main()
     // Pętla programu
     while (1)
     {
-        // Sprawdzanie przypomnień
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-
-        for (unsigned int i = 0; i < reminders.size(); i++)
-        {
-            // Sprawdzenie czy przypomnienie ma być wyświetlone
-            if (timePtr->tm_mday == reminders[i].day && timePtr->tm_mon + 1 == reminders[i].month && timePtr->tm_year + 1900 == reminders[i].year && timePtr->tm_hour == reminders[i].hour && timePtr->tm_min == reminders[i].minute)
-            {
-                showReminder(reminders[i]);
-            }
-        }
+        // Wyświetlenie aktualnych przypomnień
+        displayReminders();
 
         // Wyświetlenie menu
         cout << "Menu:" << endl;
@@ -319,12 +305,14 @@ int main()
             {
                 // Wyjście z programu
                 saveReminders();
-                SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-                showReminder(reminders[0]);
-                cout << "Dzięki za współpracę z programem.\nTO NIE JEST KOMPLETNA WERSJA PROGRAMU!" << endl;
+                cout << "Do zobaczenia!" << endl;
                 return 0;
             }
             }
         }
+
+        // Wyczyszczenie konsoli przed kolejnym wyświetleniem menu
+        system("cls");
     }
+    return 0;
 }
