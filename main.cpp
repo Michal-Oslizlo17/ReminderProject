@@ -247,9 +247,11 @@ int main()
           time--;
           system("timeout 1 >nul /NOBREAK");
         }
-
-        system("taskkill /f /im wscript.exe /t");
+        cout << "_________________________________________________________________" << endl;
         showReminder(reminders[i]);
+        saveReminders();
+        cout << "_________________________________________________________________" << endl;
+        system("taskkill /f /im wscript.exe /t");
       }
     }
 
