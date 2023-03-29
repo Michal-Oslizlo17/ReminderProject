@@ -214,7 +214,7 @@ void showReminder(Reminder reminder)
     int time = 15;
     while (time > 0)
     {
-        cout << "Pozostało: " << time << " sekund" << endl;
+        cout << "Pozostało: " << time << " sekund" << "\r";
         time--;
         system("timeout 1 >nul /NOBREAK");
     }
@@ -253,6 +253,7 @@ int main()
             if (timePtr->tm_mday == reminders[i].day && timePtr->tm_mon + 1 == reminders[i].month && timePtr->tm_year + 1900 == reminders[i].year && timePtr->tm_hour == reminders[i].hour && timePtr->tm_min == reminders[i].minute)
             {
                 showReminder(reminders[i]);
+                cout << showReminder(reminders[i]) << endl;
             }
         }
 
