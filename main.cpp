@@ -1,331 +1,229 @@
 #include <iostream>
-#include <vector>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <ctime>
 #include <windows.h>
-#include <c++\mingw32\bits\error_constants.h>
 
 using namespace std;
 
-// Struktura przechowująca dane przypomnienia
 struct Reminder
 {
+  int id;
   string text;
   int day;
   int month;
   int year;
   int hour;
   int minute;
-  int id;
 };
 
-// Wektor zawierający wszystkie przypomnienia
 vector<Reminder> reminders;
 
-// Funkcja do dodawania nowego przypomnienia
+void showReminder(Reminder rem)
+{
+  system("cls");
+  cout << "Przypomnienie #" << rem.id << endl;
+  cout << "Data: " << rem.day << "." << rem.month << "." << rem.year << endl;
+  cout << "Godzina: " << rem.hour << ":" << rem.minute << endl;
+  cout << "Tekst: " << rem.text << endl;
+}
+
 void addReminder()
 {
-  // Tworzenie nowego przypomnienia
-  Reminder newReminder;
+  Reminder rem;
+  rem.id = reminders.size() + 1;
 
-  // Pobieranie danych od użytkownika
-  cout << "Podaj tekst przypomnienia: ";
-  cin >> newReminder.text;
-  cout << "Podaj dzień: ";
-  cin >> newReminder.day;
-  cout << "Podaj miesiąc: ";
-  cin >> newReminder.month;
-  cout << "Podaj rok: ";
-  cin >> newReminder.year;
-  cout << "Podaj godzinę: ";
-  cin >> newReminder.hour;
-  cout << "Podaj minutę: ";
-  cin >> newReminder.minute;
+  cout << "Podaj datę przypomnienia (DD MM RRRR): ";
+  cin >> rem.day >> rem.month >> rem.year;
 
-  // Unikalne ID
-  newReminder.id = reminders.size() + 1;
+  cout << "Podaj godzinę przypomnienia (GG MM): ";
+  cin >> rem.hour >> rem.minute;
 
-  // Dodawanie przypomnienia do wektora
-  reminders.push_back(newReminder);
+  cin.ignore(); // Ignorowanie znaku nowej linii
+
+  cout << "Podaj treść przypomnienia: ";
+  getline(cin, rem.text);
+
+  reminders.push_back(rem);
+  cout << "Dodano przypomnienie #" << rem.id << endl;
 }
 
-// Funkcja do usuwania przypomnienia
-void deleteReminder()
+void deleteReminder(unsigned int id)
 {
-  // Pobranie ID przypomnienia do usunięcia
-  int id;
-  cout << "Podaj ID przypomnienia do usunięcia: ";
-  cin >> id;
-
-  // Przeszukiwanie wektora w poszukiwaniu wprowadzonego ID
-  for (unsigned int i = 0; i < reminders.size(); i++)
-  {
-    // Sprawdzenie czy ID się zgadza
-    if (reminders[i].id == id)
-    {
-      // Usunięcie przypomnienia
-      reminders.erase(reminders.begin() + i);
-      cout << "Przypomnienie usunięte!" << endl;
-      return;
-    }
-  }
-
-  // Jeśli nie znaleziono przypomnienia o podanym ID
-  cout << "Nie znaleziono przypomnienia o podanym ID!" << endl;
+  reminders.erase(reminders.begin() + id - 1);
+  cout << "Usunięto przypomnienie #" << id << endl;
 }
 
-// Funkcja do edytowania przypomnienia
-void editReminder()
+void editReminder(unsigned int id)
 {
-  // Pobranie ID przypomnienia do edytowania
-  int id;
-  cout << "Podaj ID przypomnienia do edytowania: ";
-  cin >> id;
+  Reminder &rem = reminders[id - 1];
 
-  // Przeszukiwanie wektora w poszukiwaniu wprowadzonego ID
-  for (unsigned int i = 0; i < reminders.size(); i++)
-  {
-    // Sprawdzenie czy ID się zgadza
-    if (reminders[i].id == id)
-    {
-      // Wyświetlenie starego tekstu przypomnienia
-      cout << "Stary tekst przypomnienia: " << reminders[i].text << endl;
+  cout << "Podaj nową datę przypomnienia (DD MM RRRR): ";
+  cin >> rem.day >> rem.month >> rem.year;
 
-      // Pobranie nowych danych od użytkownika
-      cout << "Podaj nowy tekst przypomnienia: ";
-      cin >> reminders[i].text;
-      cout << "Podaj nowy dzień: ";
-      cin >> reminders[i].day;
-      cout << "Podaj nowy miesiąc: ";
-      cin >> reminders[i].month;
-      cout << "Podaj nowy rok: ";
-      cin >> reminders[i].year;
-      cout << "Podaj nową godzinę: ";
-      cin >> reminders[i].hour;
-      cout << "Podaj nową minutę: ";
-      cin >> reminders[i].minute;
+  cout << "Podaj nową godzinę przypomnienia (GG MM): ";
+  cin >> rem.hour >> rem.minute;
 
-      cout << "Przypomnienie zedytowane!" << endl;
-      return;
-    }
-  }
+  cin.ignore(); // Ignorowanie znaku nowej linii
 
-  // Jeśli nie znaleziono przypomnienia o podanym ID
-  cout << "Nie znaleziono przypomnienia o podanym ID!" << endl;
+  cout << "Podaj nową treść przypomnienia: ";
+  getline(cin, rem.text);
+
+  cout << "Zaktualizowano przypomnienie #" << id << endl;
 }
 
-// Funkcja do zapisywania danych do pliku
 void saveReminders()
 {
-  // Otwarcie pliku do zapisu
-  ofstream file("tasks.txt");
+  ofstream file("reminders.txt");
 
-  // Zapisanie wszystkich przypomnień do pliku
-  for (unsigned int i = 0; i < reminders.size(); i++)
+  if (file.is_open())
   {
-    file << reminders[i].text << endl;
-    file << reminders[i].day << endl;
-    file << reminders[i].month << endl;
-    file << reminders[i].year << endl;
-    file << reminders[i].hour << endl;
-    file << reminders[i].minute << endl;
-    file << reminders[i].id << endl;
-  }
-
-  file.close();
-}
-
-// Funkcja do wczytywania danych z pliku
-void loadReminders()
-{
-  // Otwarcie pliku do odczytu
-  ifstream file("tasks.txt");
-
-  // Flaga mówiąca o tym czy plik został otwarty
-  bool isOpen = file.is_open();
-
-  // Jeśli plik został otwarty
-  if (isOpen)
-  {
-    string line;
-
-    // Odczytanie wszystkich linii pliku
-    while (getline(file, line))
+    for (unsigned int i = 0; i < reminders.size(); i++)
     {
-      // Tworzenie nowego przypomnienia
-      Reminder newReminder;
-
-      // Przetworzenie linii na dane przypomnienia
-      int pos = 0;
-      string token;
-      for (int i = 0; i < 7; i++)
-      {
-        pos = line.find(",");
-        token = line.substr(0, pos);
-        line.erase(0, pos + 1);
-
-        switch (i)
-        {
-        case 0:
-          newReminder.text = token;
-          break;
-        case 1:
-          newReminder.day = stoi(token);
-          break;
-        case 2:
-          newReminder.month = stoi(token);
-          break;
-        case 3:
-          newReminder.year = stoi(token);
-          break;
-        case 4:
-          newReminder.hour = stoi(token);
-          break;
-        case 5:
-          newReminder.minute = stoi(token);
-          break;
-        case 6:
-          newReminder.id = stoi(token);
-          break;
-        }
-      }
-
-      // Dodawanie przypomnienia do wektora
-      reminders.push_back(newReminder);
+      Reminder rem = reminders[i];
+      file << rem.id << endl;
+      file << rem.day << endl;
+      file << rem.month << endl;
+      file << rem.year << endl;
+      file << rem.hour << endl;
+      file << rem.minute << endl;
+      file << rem.text << endl;
     }
 
     file.close();
   }
+  else
+  {
+    cout << "Nie udało się zapisać przypomnień do pliku!" << endl;
+  }
 }
 
-// Funkcja wyświetlająca przypomnienie
-void showReminder(Reminder reminder)
+void loadReminders()
 {
-  // Wyświetlenie przypomnienia na ekranie
-  cout << "Przypomnienie o: " << reminder.text << endl;
-  cout << reminder.day << "/" << reminder.month << "/" << reminder.year << " ";
-  cout << reminder.hour << ":" << reminder.minute << endl;
+  ifstream file("tasks.txt");
+
+  if (file.is_open())
+  {
+    Reminder rem;
+    while (file >> rem.id >> rem.day >> rem.month >> rem.year >> rem.hour >> rem.minute)
+    {
+      file.ignore(); // pomiń znak nowej linii po godzinie
+      getline(file, rem.text);
+
+      reminders.push_back(rem);
+    }
+
+    file.close();
+  }
+  else
+  {
+    cout << "Nie udało się wczytać przypomnień z pliku!" << endl;
+  }
 }
 
-// Główna funkcja programu
+
 int main()
 {
-  system("@chcp 65001 >nul");
-  HANDLE hConsole;
-  hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+  ifstream file("reminders.txt");
 
-  // Powiększenie czcionki
-  // SetConsoleFontSize(hConsole, 10); // Ustawianie rozmiaru czcionki na 10 (Błąd)
-
-  // Zmiana koloru
-  SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-
-  // Wczytanie przypomnień z pliku
-  loadReminders();
-  int rem = 0;
-
-  // Pętla programu
-  while (1)
+  if (file.is_open())
   {
-    // Sprawdzanie przypomnień
-    time_t t = time(NULL);
-    tm *timePtr = localtime(&t);
-
-    for (unsigned int i = 0; i < reminders.size(); i++)
+    Reminder rem;
+    while (file >> rem.id >> rem.day >> rem.month >> rem.year >> rem.hour >> rem.minute)
     {
-      // Sprawdzenie czy przypomnienie ma być wyświetlone
-      if (timePtr->tm_mday == reminders[i].day && timePtr->tm_mon + 1 == reminders[i].month && timePtr->tm_year + 1900 == reminders[i].year && timePtr->tm_hour == reminders[i].hour && timePtr->tm_min == reminders[i].minute)
-      {
-        cout << "Odtwarzanie dźwięku..." << endl;
-        system("start Reminder.vbs");
-
-        // Uspanie programu przez 15 sekund
-        int time = 15;
-        while (time > 0)
-        {
-          time--;
-          system("timeout 1 >nul /NOBREAK");
-        }
-        cout << "_________________________________________________________________" << endl;
-        showReminder(reminders[i]);
-        saveReminders();
-        cout << "_________________________________________________________________" << endl;
-        system("taskkill /f /im wscript.exe /t");
-      }
+      getline(file, rem.text);
+      reminders.push_back(rem);
     }
+    file.close();
+  }
 
-    // Wyświetlenie menu
-    showReminder(reminders[rem]);
-    cout << "Menu:" << endl;
-    cout << "1. Dodaj przypomnienie" << endl;
-    cout << "2. Usuń przypomnienie" << endl;
+  while (true)
+  {
+    system("cls");
+    cout << "----- PRZYPOMNIENIA -----" << endl;
+    cout << "1. Pokaż wszystkie przypomnienia" << endl;
+    cout << "2. Dodaj nowe przypomnienie" << endl;
     cout << "3. Edytuj przypomnienie" << endl;
-    cout << "4. Wyjście" << endl;
-
-    int option;
+    cout << "4. Usuń przypomnienie" << endl;
+    cout << "5. Zapisz przypomnienia" << endl;
+    cout << "6. Wyjdź z programu" << endl;
     cout << "Wybierz opcję: ";
-    cin >> option;
-    cout << endl;
 
-    if (option < 1 || option > 4)
+    int choice;
+    cin >> choice;
+
+    switch (choice)
     {
-      cout << "Nie ma takiej opcji!" << endl;
-    }
-    else
-    {
-      switch (option)
+    case 1:
+      if (reminders.empty())
       {
-      case 1:
-      {
-        // Dodanie przypomnienia
-        addReminder();
+        cout << "Brak przypomnień do wyświetlenia." << endl;
+        system("pause");
         break;
       }
-      case 2:
+      for (unsigned int i = 0; i < reminders.size(); i++)
       {
-        // Usuwanie przypomnienia
-        unsigned int id;
-        cout << "Podaj ID przypomnienia do usunięcia: ";
-        cin >> id;
-
-        if (id > reminders.size() || id < 1)
-        {
-          cout << "Nie ma takiego przypomnienia!" << endl;
-        }
-        else
-        {
-          deleteReminder();
-        }
+        showReminder(reminders[i]);
+        system("pause");
+      }
+      break;
+    case 2:
+      addReminder();
+      system("pause");
+      break;
+    case 3:
+      if (reminders.empty())
+      {
+        cout << "Brak przypomnień do edycji." << endl;
+        system("pause");
         break;
       }
-      case 3:
+      unsigned int idToEdit;
+      cout << "Podaj numer przypomnienia do edycji: ";
+      cin >> idToEdit;
+      if (idToEdit <= reminders.size())
       {
-        // Edytowanie przypomnienia
-        unsigned int id;
-        cout << "Podaj ID przypomnienia do edycji: ";
-        cin >> id;
-
-        if (id > reminders.size() || id < 1)
-        {
-          cout << "Nie ma takiego przypomnienia!" << endl;
-        }
-        else
-        {
-          editReminder();
-        }
+        editReminder(idToEdit);
+      }
+      else
+      {
+        cout << "Nie ma przypomnienia o numerze " << idToEdit << "." << endl;
+      }
+      system("pause");
+      break;
+    case 4:
+      if (reminders.empty())
+      {
+        cout << "Brak przypomnień do usunięcia." << endl;
+        system("pause");
         break;
       }
-      case 4:
+      unsigned int idToDelete;
+      cout << "Podaj numer przypomnienia do usunięcia: ";
+      cin >> idToDelete;
+      if (idToDelete <= reminders.size())
       {
-        // Wyjście z programu
-        saveReminders();
-        SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-        showReminder(reminders[rem]);
-        cout << "Do zobaczenia!" << endl;
-        return 0;
+        deleteReminder(idToDelete);
       }
+      else
+      {
+        cout << "Nie ma przypomnienia o numerze " << idToDelete << "." << endl;
       }
+      system("pause");
+      break;
+    case 5:
+      saveReminders();
+      system("pause");
+      break;
+    case 6:
+      return 0;
+    default:
+      cout << "Nieprawidłowa opcja. Wybierz ponownie." << endl;
+      system("pause");
+      break;
     }
   }
+
+  return 0;
 }
