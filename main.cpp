@@ -122,7 +122,6 @@ void loadReminders()
   }
 }
 
-
 int main()
 {
   ifstream file("reminders.txt");
@@ -225,5 +224,23 @@ int main()
     }
   }
 
-  return 0;
+  // Sprawdzanie przypomnień o ustalonej godzinie i dacie
+  time_t now = time(nullptr);
+  tm *ltm = localtime(&now);
+  for (unsigned int i = 0; i < reminders.size(); i++)
+  {
+    if (reminders[i].year == 1900 + ltm->tm_year &&
+        reminders[i].month == 1 + ltm->tm_mon &&
+        reminders[i].day == ltm->tm_mday &&
+        reminders[i].hour == ltm->tm_hour &&
+        reminders[i].minute == ltm->tm_min)
+    {
+      showReminder(reminders[i]);
+      system("timeout 15 /NOBREAK & taskkill /f /im wscript.exe /t");
+      cout << "Pomyślnie zamknięto proces VBSCRIPT odpowiadający za odtwarzanie dźwięku .mp3" << endl;
+      system("pause >nul");
+    }
+  }
+
+    return 0;
 }
