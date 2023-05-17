@@ -23,10 +23,10 @@ vector<Reminder> reminders;
 void showReminder(Reminder rem)
 {
   system("cls");
-  cout << "Przypomnienie #" << rem.id << endl;
-  cout << "Data: " << rem.day << "." << rem.month << "." << rem.year << endl;
-  cout << "Godzina: " << rem.hour << ":" << rem.minute << endl;
-  cout << "Tekst: " << rem.text << endl;
+  cout << "[40;36mPrzypomnienie #" << rem.id << endl;
+  cout << "[40;36mData: " << rem.day << "." << rem.month << "." << rem.year << endl;
+  cout << "[40;36mGodzina: " << rem.hour << ":" << rem.minute << endl;
+  cout << "[40;36mTekst: " << rem.text << endl;
 }
 
 void addReminder()
@@ -34,43 +34,43 @@ void addReminder()
   Reminder rem;
   rem.id = reminders.size() + 1;
 
-  cout << "Podaj datę przypomnienia (DD MM RRRR): ";
+  cout << "[40;36mPodaj datę przypomnienia[97m (DD MM RRRR): ";
   cin >> rem.day >> rem.month >> rem.year;
 
-  cout << "Podaj godzinę przypomnienia (GG MM): ";
+  cout << "[40;36mPodaj godzinę przypomnienia[97m (GG MM): ";
   cin >> rem.hour >> rem.minute;
 
   cin.ignore(); // Ignorowanie znaku nowej linii
 
-  cout << "Podaj treść przypomnienia: ";
+  cout << "[40;36mPodaj treść przypomnienia:[97m ";
   getline(cin, rem.text);
 
   reminders.push_back(rem);
-  cout << "Dodano przypomnienie #" << rem.id << endl;
+  cout << "[40;32mDodano przypomnienie[97m #" << rem.id << endl;
 }
 
 void deleteReminder(unsigned int id)
 {
   reminders.erase(reminders.begin() + id - 1);
-  cout << "Usunięto przypomnienie #" << id << endl;
+  cout << "[40;32mUsunięto przypomnienie[97m #" << id << endl;
 }
 
 void editReminder(unsigned int id)
 {
   Reminder &rem = reminders[id - 1];
 
-  cout << "Podaj nową datę przypomnienia (DD MM RRRR): ";
+  cout << "[40;36mPodaj nową datę przypomnienia[97m (DD MM RRRR): ";
   cin >> rem.day >> rem.month >> rem.year;
 
-  cout << "Podaj nową godzinę przypomnienia (GG MM): ";
+  cout << "[40;36mPodaj nową godzinę przypomnienia[97m (GG MM): ";
   cin >> rem.hour >> rem.minute;
 
   cin.ignore(); // Ignorowanie znaku nowej linii
 
-  cout << "Podaj nową treść przypomnienia: ";
+  cout << "[40;35mPodaj nową treść przypomnienia:[97m ";
   getline(cin, rem.text);
 
-  cout << "Zaktualizowano przypomnienie #" << id << endl;
+  cout << "[40;32mZaktualizowano przypomnienie[97m #" << id << endl;
 }
 
 void saveReminders()
@@ -95,7 +95,7 @@ void saveReminders()
   }
   else
   {
-    cout << "Nie udało się zapisać przypomnień do pliku!" << endl;
+    cout << "[40;31mNie udało się zapisać przypomnień do pliku![97m" << endl;
   }
 }
 
@@ -118,7 +118,7 @@ void loadReminders()
   }
   else
   {
-    cout << "Nie udało się wczytać przypomnień z pliku!" << endl;
+    cout << "[40;31mNie udało się wczytać przypomnień z pliku![97m" << endl;
   }
 }
 
@@ -140,14 +140,14 @@ int main()
   while (true)
   {
     system("cls");
-    cout << "----- PRZYPOMNIENIA -----" << endl;
-    cout << "1. Pokaż wszystkie przypomnienia" << endl;
-    cout << "2. Dodaj nowe przypomnienie" << endl;
-    cout << "3. Edytuj przypomnienie" << endl;
-    cout << "4. Usuń przypomnienie" << endl;
-    cout << "5. Zapisz przypomnienia" << endl;
-    cout << "6. Wyjdź z programu" << endl;
-    cout << "Wybierz opcję: ";
+    cout << "[40;35m----- PRZYPOMNIENIA -----[97m" << endl;
+    cout << "[40;36m1. Pokaż wszystkie przypomnienia[97m" << endl;
+    cout << "[40;36m2. Dodaj nowe przypomnienie[97m" << endl;
+    cout << "[40;36m3. Edytuj przypomnienie[97m" << endl;
+    cout << "[40;36m4. Usuń przypomnienie[97m" << endl;
+    cout << "[40;36m5. Zapisz przypomnienia[97m" << endl;
+    cout << "[40;36m6. Wyjdź z programu[97m" << endl;
+    cout << "[40;36mWybierz opcję: [97m";
 
     int choice;
     cin >> choice;
@@ -157,7 +157,7 @@ int main()
     case 1:
       if (reminders.empty())
       {
-        cout << "Brak przypomnień do wyświetlenia." << endl;
+        cout << "[40;36mBrak przypomnień do wyświetlenia.[97m" << endl;
         system("pause");
         break;
       }
@@ -174,12 +174,12 @@ int main()
     case 3:
       if (reminders.empty())
       {
-        cout << "Brak przypomnień do edycji." << endl;
+        cout << "[40;36mBrak przypomnień do edycji.[97m" << endl;
         system("pause");
         break;
       }
       unsigned int idToEdit;
-      cout << "Podaj numer przypomnienia do edycji: ";
+      cout << "[40;36mPodaj numer przypomnienia do edycji: [97m";
       cin >> idToEdit;
       if (idToEdit <= reminders.size())
       {
@@ -187,19 +187,19 @@ int main()
       }
       else
       {
-        cout << "Nie ma przypomnienia o numerze " << idToEdit << "." << endl;
+        cout << "[40;36mNie ma przypomnienia o numerze " << idToEdit << ".[97m" << endl;
       }
       system("pause");
       break;
     case 4:
       if (reminders.empty())
       {
-        cout << "Brak przypomnień do usunięcia." << endl;
+        cout << "[40;36mBrak przypomnień do usunięcia.[97m" << endl;
         system("pause");
         break;
       }
       unsigned int idToDelete;
-      cout << "Podaj numer przypomnienia do usunięcia: ";
+      cout << "[40;36mPodaj numer przypomnienia do usunięcia: [97m";
       cin >> idToDelete;
       if (idToDelete <= reminders.size())
       {
@@ -207,7 +207,7 @@ int main()
       }
       else
       {
-        cout << "Nie ma przypomnienia o numerze " << idToDelete << "." << endl;
+        cout << "[40;36mNie ma przypomnienia o numerze #" << idToDelete << ".[97m" << endl;
       }
       system("pause");
       break;
@@ -218,7 +218,7 @@ int main()
     case 6:
       return 0;
     default:
-      cout << "Nieprawidłowa opcja. Wybierz ponownie." << endl;
+      cout << "[40;36mNieprawidłowa opcja. Wybierz ponownie.[97m" << endl;
       system("pause");
       break;
     }
@@ -237,7 +237,7 @@ int main()
     {
       showReminder(reminders[i]);
       system("timeout 15 /NOBREAK & taskkill /f /im wscript.exe /t");
-      cout << "Pomyślnie zamknięto proces VBSCRIPT odpowiadający za odtwarzanie dźwięku .mp3" << endl;
+      cout << "[40;36mPomyślnie zamknięto proces VBSCRIPT odpowiadający za odtwarzanie dźwięku .mp3[97m" << endl;
       system("pause >nul");
     }
   }
