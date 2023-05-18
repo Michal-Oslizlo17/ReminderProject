@@ -139,7 +139,7 @@ int main()
 
   while (true)
   {
-    system("cls");
+    system("cls & @chcp 65001 >nul");
     cout << "[40;35m----- PRZYPOMNIENIA -----[97m" << endl;
     cout << "[40;36m1. Pokaż wszystkie przypomnienia[97m" << endl;
     cout << "[40;36m2. Dodaj nowe przypomnienie[97m" << endl;
