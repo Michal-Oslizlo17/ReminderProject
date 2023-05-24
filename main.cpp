@@ -1,246 +1,232 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <vector>
 #include <ctime>
-#include <windows.h>
-
+#include <thread>
+#include <chrono>
 using namespace std;
 
 struct Reminder
 {
-  int id;
+  unsigned int id;
+  unsigned int day;
+  unsigned int month;
+  unsigned int year;
+  unsigned int hour;
+  unsigned int minute;
   string text;
-  int day;
-  int month;
-  int year;
-  int hour;
-  int minute;
 };
 
 vector<Reminder> reminders;
 
-void showReminder(Reminder rem)
+void showReminder(const Reminder &rem)
 {
-  system("cls");
-  cout << "[40;36mPrzypomnienie #" << rem.id << endl;
-  cout << "[40;36mData: " << rem.day << "." << rem.month << "." << rem.year << endl;
-  cout << "[40;36mGodzina: " << rem.hour << ":" << rem.minute << endl;
-  cout << "[40;36mTekst: " << rem.text << endl;
+  cout << "[40;36mNumer: " << rem.id << endl;
+  cout << "Data: " << rem.day << "/" << rem.month << "/" << rem.year << endl;
+  cout << "Godzina: " << rem.hour << ":" << rem.minute << endl;
+  cout << "Treść: " << rem.text << "[97m" << endl;
 }
 
 void addReminder()
 {
   Reminder rem;
-  rem.id = reminders.size() + 1;
-
-  cout << "[40;36mPodaj datę przypomnienia[97m (DD MM RRRR): ";
+  cout << "[40;36mPodaj datę przypomnienia (DD MM RRRR): [97m";
   cin >> rem.day >> rem.month >> rem.year;
-
-  cout << "[40;36mPodaj godzinę przypomnienia[97m (GG MM): ";
+  cout << "[40;36mPodaj godzinę przypomnienia (GG MM): [97m";
   cin >> rem.hour >> rem.minute;
-
-  cin.ignore(); // Ignorowanie znaku nowej linii
-
-  cout << "[40;36mPodaj treść przypomnienia:[97m ";
+  cout << "[40;36mPodaj treść przypomnienia: [97m";
+  cin.ignore();
   getline(cin, rem.text);
 
+  rem.id = reminders.size() + 1;
   reminders.push_back(rem);
-  cout << "[40;32mDodano przypomnienie[97m #" << rem.id << endl;
-}
 
-void deleteReminder(unsigned int id)
-{
-  reminders.erase(reminders.begin() + id - 1);
-  cout << "[40;32mUsunięto przypomnienie[97m #" << id << endl;
+  cout << "[40;36mPrzypomnienie zostało dodane.[97m" << endl;
 }
 
 void editReminder(unsigned int id)
 {
   Reminder &rem = reminders[id - 1];
+  cout << "[40;36mNumer: " << rem.id << endl;
+  cout << "[40;36mStara data: " << rem.day << "/" << rem.month << "/" << rem.year << endl;
+  cout << "[40;36mStara godzina: " << rem.hour << ":" << rem.minute << endl;
+  cout << "[40;36mStara treść: " << rem.text << endl;
 
-  cout << "[40;36mPodaj nową datę przypomnienia[97m (DD MM RRRR): ";
+  cout << "[40;36mPodaj nową datę przypomnienia (DD MM RRRR): [97m";
   cin >> rem.day >> rem.month >> rem.year;
-
-  cout << "[40;36mPodaj nową godzinę przypomnienia[97m (GG MM): ";
+  cout << "[40;36mPodaj nową godzinę przypomnienia (GG MM): [97m";
   cin >> rem.hour >> rem.minute;
-
-  cin.ignore(); // Ignorowanie znaku nowej linii
-
-  cout << "[40;35mPodaj nową treść przypomnienia:[97m ";
+  cout << "[40;36mPodaj nową treść przypomnienia: [97m";
+  cin.ignore();
   getline(cin, rem.text);
 
-  cout << "[40;32mZaktualizowano przypomnienie[97m #" << id << endl;
+  cout << "[40;36mPrzypomnienie zostało zaktualizowane.[97m" << endl;
+}
+
+void deleteReminder(unsigned int id)
+{
+  reminders.erase(reminders.begin() + id - 1);
+  cout << "[40;36mPrzypomnienie zostało usunięte.[97m" << endl;
 }
 
 void saveReminders()
 {
   ofstream file("reminders.txt");
-
   if (file.is_open())
   {
-    for (unsigned int i = 0; i < reminders.size(); i++)
+    for (const Reminder &rem : reminders)
     {
-      Reminder rem = reminders[i];
-      file << rem.id << endl;
-      file << rem.day << endl;
-      file << rem.month << endl;
-      file << rem.year << endl;
-      file << rem.hour << endl;
-      file << rem.minute << endl;
-      file << rem.text << endl;
+      file << rem.id << " "
+           << rem.day << " "
+           << rem.month << " "
+           << rem.year << " "
+           << rem.hour << " "
+           << rem.minute << " "
+           << rem.text << endl;
     }
-
     file.close();
+    cout << "[40;36mPrzypomnienia zostały zapisane do pliku.[97m" << endl;
   }
   else
   {
-    cout << "[40;31mNie udało się zapisać przypomnień do pliku![97m" << endl;
+    cout << "[40;36mNie udało się otworzyć pliku do zapisu przypomnień.[97m" << endl;
   }
 }
 
 void loadReminders()
 {
-  ifstream file("tasks.txt");
-
+  ifstream file("reminders.txt");
   if (file.is_open())
   {
+    reminders.clear();
     Reminder rem;
     while (file >> rem.id >> rem.day >> rem.month >> rem.year >> rem.hour >> rem.minute)
     {
-      file.ignore(); // pomiń znak nowej linii po godzinie
+      file.ignore();
       getline(file, rem.text);
-
       reminders.push_back(rem);
     }
-
     file.close();
+    cout << "[40;36mPrzypomnienia zostały wczytane z pliku.[97m" << endl;
   }
   else
   {
-    cout << "[40;31mNie udało się wczytać przypomnień z pliku![97m" << endl;
+    cout << "[40;36mNie udało się otworzyć pliku z przypomnieniami.[97m" << endl;
+  }
+}
+
+void checkReminders()
+{
+  while (true)
+  {
+    time_t now = time(nullptr);
+    tm *ltm = localtime(&now);
+    for (unsigned int i = 0; i < reminders.size(); i++)
+    {
+      if (reminders[i].year == 1900 + ltm->tm_year &&
+          reminders[i].month == 1 + ltm->tm_mon &&
+          reminders[i].day == ltm->tm_mday &&
+          reminders[i].hour == ltm->tm_hour &&
+          reminders[i].minute == ltm->tm_min)
+      {
+        showReminder(reminders[i]);
+        system("timeout 15 /NOBREAK & taskkill /f /im wscript.exe /t");
+        cout << "[40;36mPomyślnie zamknięto proces VBSCRIPT odpowiadający za odtwarzanie dźwięku .mp3[97m" << endl;
+      }
+    }
+    // Czekaj 1 sekundę przed ponownym sprawdzeniem przypomnień
+    this_thread::sleep_for(chrono::seconds(1));
   }
 }
 
 int main()
 {
-  ifstream file("reminders.txt");
+  loadReminders();
 
-  if (file.is_open())
-  {
-    Reminder rem;
-    while (file >> rem.id >> rem.day >> rem.month >> rem.year >> rem.hour >> rem.minute)
-    {
-      getline(file, rem.text);
-      reminders.push_back(rem);
-    }
-    file.close();
-  }
+  thread reminderThread(checkReminders);
+  reminderThread.detach();
 
-  while (true)
+  bool exitProgram = false;
+  while (!exitProgram)
   {
-    system("cls & @chcp 65001 >nul");
-    cout << "[40;35m----- PRZYPOMNIENIA -----[97m" << endl;
-    cout << "[40;36m1. Pokaż wszystkie przypomnienia[97m" << endl;
-    cout << "[40;36m2. Dodaj nowe przypomnienie[97m" << endl;
-    cout << "[40;36m3. Edytuj przypomnienie[97m" << endl;
-    cout << "[40;36m4. Usuń przypomnienie[97m" << endl;
-    cout << "[40;36m5. Zapisz przypomnienia[97m" << endl;
-    cout << "[40;36m6. Wyjdź z programu[97m" << endl;
+    system("cls");
+    cout << "[40;36mMENU GŁÓWNE[97m" << endl;
+    cout << "1. Pokaż przypomnienia" << endl;
+    cout << "2. Dodaj przypomnienie" << endl;
+    cout << "3. Edytuj przypomnienie" << endl;
+    cout << "4. Usuń przypomnienie" << endl;
+    cout << "5. Zapisz przypomnienia do pliku" << endl;
+    cout << "6. Wyjdź z programu" << endl;
     cout << "[40;36mWybierz opcję: [97m";
 
-    int choice;
-    cin >> choice;
+    int option;
+    cin >> option;
 
-    switch (choice)
+    switch (option)
     {
     case 1:
-      if (reminders.empty())
+      system("cls");
+      cout << "[40;36mPOKAZUJĘ PRZYPOMNIENIA[97m" << endl;
+      for (const Reminder &rem : reminders)
       {
-        cout << "[40;36mBrak przypomnień do wyświetlenia.[97m" << endl;
-        system("pause");
-        break;
+        showReminder(rem);
+        cout << endl;
       }
-      for (unsigned int i = 0; i < reminders.size(); i++)
-      {
-        showReminder(reminders[i]);
-        system("pause");
-      }
+      system("pause");
       break;
     case 2:
+      system("cls");
+      cout << "[40;36mDODAJ PRZYPOMNIENIE[97m" << endl;
       addReminder();
       system("pause");
       break;
     case 3:
-      if (reminders.empty())
-      {
-        cout << "[40;36mBrak przypomnień do edycji.[97m" << endl;
-        system("pause");
-        break;
-      }
-      unsigned int idToEdit;
+      system("cls");
+      cout << "[40;36mEDYTUJ PRZYPOMNIENIE[97m" << endl;
+      unsigned int editId;
       cout << "[40;36mPodaj numer przypomnienia do edycji: [97m";
-      cin >> idToEdit;
-      if (idToEdit <= reminders.size())
+      cin >> editId;
+      if (editId > 0 && editId <= reminders.size())
       {
-        editReminder(idToEdit);
+        editReminder(editId);
       }
       else
       {
-        cout << "[40;36mNie ma przypomnienia o numerze " << idToEdit << ".[97m" << endl;
+        cout << "[40;36mNieprawidłowy numer przypomnienia.[97m" << endl;
       }
       system("pause");
       break;
     case 4:
-      if (reminders.empty())
-      {
-        cout << "[40;36mBrak przypomnień do usunięcia.[97m" << endl;
-        system("pause");
-        break;
-      }
-      unsigned int idToDelete;
+      system("cls");
+      cout << "[40;36mUSUŃ PRZYPOMNIENIE[97m" << endl;
+      unsigned int deleteId;
       cout << "[40;36mPodaj numer przypomnienia do usunięcia: [97m";
-      cin >> idToDelete;
-      if (idToDelete <= reminders.size())
+      cin >> deleteId;
+      if (deleteId > 0 && deleteId <= reminders.size())
       {
-        deleteReminder(idToDelete);
+        deleteReminder(deleteId);
       }
       else
       {
-        cout << "[40;36mNie ma przypomnienia o numerze #" << idToDelete << ".[97m" << endl;
+        cout << "[40;36mNieprawidłowy numer przypomnienia.[97m" << endl;
       }
       system("pause");
       break;
     case 5:
+      system("cls");
+      cout << "[40;36mZAPISZ PRZYPOMNIENIA DO PLIKU[97m" << endl;
       saveReminders();
       system("pause");
       break;
     case 6:
-      return 0;
+      exitProgram = true;
+      break;
     default:
-      cout << "[40;36mNieprawidłowa opcja. Wybierz ponownie.[97m" << endl;
+      cout << "[40;36mNieprawidłowa opcja.[97m" << endl;
       system("pause");
       break;
     }
   }
 
-  // Sprawdzanie przypomnień o ustalonej godzinie i dacie
-  time_t now = time(nullptr);
-  tm *ltm = localtime(&now);
-  for (unsigned int i = 0; i < reminders.size(); i++)
-  {
-    if (reminders[i].year == 1900 + ltm->tm_year &&
-        reminders[i].month == 1 + ltm->tm_mon &&
-        reminders[i].day == ltm->tm_mday &&
-        reminders[i].hour == ltm->tm_hour &&
-        reminders[i].minute == ltm->tm_min)
-    {
-      showReminder(reminders[i]);
-      system("timeout 15 /NOBREAK & taskkill /f /im wscript.exe /t");
-      cout << "[40;36mPomyślnie zamknięto proces VBSCRIPT odpowiadający za odtwarzanie dźwięku .mp3[97m" << endl;
-      system("pause >nul");
-    }
-  }
-
-    return 0;
+  return 0;
 }
