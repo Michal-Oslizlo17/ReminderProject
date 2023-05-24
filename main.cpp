@@ -144,13 +144,38 @@ void checkReminders()
   }
 }
 
+void removeOldReminders()
+{
+  time_t now = time(nullptr);
+  tm* ltm = localtime(&now);
+  vector<Reminder> updatedReminders;
+
+  for (unsigned int i = 0; i < reminders.size(); i++)
+  {
+    if (reminders[i].year > 1900 + ltm->tm_year ||
+        reminders[i].month > 1 + ltm->tm_mon ||
+        reminders[i].day > ltm->tm_mday ||
+        reminders[i].hour > ltm->tm_hour ||
+        (reminders[i].hour == ltm->tm_hour && reminders[i].minute > ltm->tm_min))
+    {
+      updatedReminders.push_back(reminders[i]);
+    }
+  }
+
+  reminders = updatedReminders;
+
+  // Zapisz zaktualizowane przypomnienia do pliku
+  saveReminders();
+}
+
 int main()
 {
   loadReminders();
 
   while (true)
   {
-    system("cls");
+    removeOldReminders();
+    system("cls & @chcp 65001 >nul");
     checkReminders();
     cout << "\033[40;35m----- PRZYPOMNIENIA -----\033[97m" << endl;
     cout << "\033[40;36m1. Pokaż wszystkie przypomnienia\033[97m" << endl;
