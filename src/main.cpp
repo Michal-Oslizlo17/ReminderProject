@@ -7,6 +7,7 @@
 #include "./include/ReminderManager.h"
 
 using namespace std;
+
 int main()
 {
   ReminderManager reminderManager;
@@ -20,7 +21,10 @@ int main()
 
     int choice;
     cin >> choice;
-    reminderManager.handleChoice(choice);
+    if (!reminderManager.handleChoice(choice))
+    {
+      break; // Przerwanie pętli, jeśli handleChoice zwrócił false
+    }
   }
 
   return 0;

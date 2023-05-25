@@ -103,11 +103,18 @@ void ReminderManager::loadReminders()
             reminders.push_back(rem);
         }
 
-        file.close();
+        if (file.eof())
+        {
+            file.close();
+        }
+        else
+        {
+            cout << "\033[40;31mBłąd podczas wczytywania przypomnień z pliku!\033[97m" << endl;
+        }
     }
     else
     {
-        cout << "\033[40;31mNie udało się wczytać przypomnień z pliku!\033[97m" << endl;
+        cout << "\033[40;31mNie udało się otworzyć pliku z przypomnieniami!\033[97m" << endl;
     }
 }
 
@@ -131,6 +138,19 @@ void ReminderManager::checkReminders()
             system("pause >nul");
         }
     }
+    system("cls");
+}
+
+void ReminderManager::displayReminders(const vector<Reminder> &reminders)
+{
+    for (const Reminder &rem : reminders)
+    {
+        cout << "\033[40;36mPrzypomnienie #" << rem.id << endl;
+        cout << "\033[40;36mData: " << rem.day << "." << rem.month << "." << rem.year << endl;
+        cout << "\033[40;36mGodzina: " << rem.hour << ":" << rem.minute << endl;
+        cout << "\033[40;36mTekst: " << rem.text << endl;
+        cout << endl;
+    }
 }
 
 void ReminderManager::showMenu()
@@ -146,10 +166,8 @@ void ReminderManager::showMenu()
     cout << "\033[40;36mWybierz opcję: \033[97m";
 }
 
-void ReminderManager::handleChoice(int choice)
+bool ReminderManager::handleChoice(int choice)
 {
-    loadReminders();
-
     while (true)
     {
         system("cls & @chcp 65001 >nul");
@@ -164,7 +182,7 @@ void ReminderManager::handleChoice(int choice)
         case 1:
             if (reminders.empty())
             {
-                cout << "\033[40;36mBrak przypomnień do wyświetlenia.\033[97m" <<endl;
+                cout << "\033[40;36mBrak przypomnień do wyświetlenia.\033[97m" << endl;
                 system("pause");
                 break;
             }
@@ -185,7 +203,16 @@ void ReminderManager::handleChoice(int choice)
                 system("pause");
                 break;
             }
+            else
+            {
+                displayReminders(reminders);
+            }
             unsigned int idToEdit;
+            for (unsigned int i = 0; i < reminders.size(); i++)
+            {
+                showReminder(reminders[i]);
+                system("pause");
+            }
             cout << "\033[40;36mPodaj numer przypomnienia do edycji: \033[97m";
             cin >> idToEdit;
             if (idToEdit <= reminders.size())
@@ -194,7 +221,7 @@ void ReminderManager::handleChoice(int choice)
             }
             else
             {
-               cout << "\033[40;36mNie ma przypomnienia o numerze " << idToEdit << ".\033[97m" << endl;
+                cout << "\033[40;36mNie ma przypomnienia o numerze " << idToEdit << ".\033[97m" << endl;
             }
             system("pause");
             break;
@@ -205,7 +232,16 @@ void ReminderManager::handleChoice(int choice)
                 system("pause");
                 break;
             }
+            else
+            {
+                displayReminders(reminders);
+            }
             unsigned int idToDelete;
+            for (unsigned int i = 0; i < reminders.size(); i++)
+            {
+                showReminder(reminders[i]);
+                system("pause");
+            }
             cout << "\033[40;36mPodaj numer przypomnienia do usunięcia: \033[97m";
             cin >> idToDelete;
             if (idToDelete <= reminders.size())
@@ -225,10 +261,10 @@ void ReminderManager::handleChoice(int choice)
         case 6:
             saveReminders();
             cout << "\033[40;32mZakończono program.\033[97m" << endl;
-            return;
+            return false;
         case 7:
             system("cls");
-            break;
+            continue;
         default:
             cout << "\033[40;36mNieznana opcja.\033[97m" << endl;
             system("pause");

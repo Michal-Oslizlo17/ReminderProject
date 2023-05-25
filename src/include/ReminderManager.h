@@ -24,7 +24,7 @@ public:
     void loadReminders();
     void checkReminders();
     void showMenu();
-    void handleChoice(int choice);
+    bool handleChoice(int choice);
 
     vector<Reminder> reminders;
 
@@ -32,4 +32,5 @@ public:
     void addReminder();
     void deleteReminder(unsigned int id);
     void editReminder(unsigned int id);
+    void displayReminders(const vector<Reminder> &reminders);
 };
